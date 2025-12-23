@@ -1,0 +1,72 @@
+name: Test and Release
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - 'main'
+
+concurrency:
+  group: ${{ format('{0}-{1}', github.workflow, github.ref) }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Run unit tests
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+        java: [ 21 ]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Common Setup
+        uses: ./.github/actions/common-setup
+        with:
+          java-version: ${{ matrix.java }}
+
+      - name: Build with Gradle
+        run: ./gradlew build --info
+
+      - name: Upload build results
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.os }} Java ${{ matrix.java }} build results
+          path: ${{ github.workspace }}/build/libs/
+
+      - name: Upload test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.os }} Java ${{ matrix.java }} test results
+          path: ${{ github.workspace }}/build/reports/
+
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Common Setup
+        uses: ./.github/actions/common-setup
+        with:
+          java-version: 21
+
+      - name: Publish with Gradle
+        run: ./gradlew -Pver="0.0.0-RC-1" release
+
+      - name: Upload build results
+        uses: actions/upload-artifact@v6
+        with:
+          name: Release Build
+          path: ${{ github.workspace }}/build/libs/

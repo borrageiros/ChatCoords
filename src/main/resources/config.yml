@@ -1,0 +1,8 @@
+message: "📍 Coordinates: X: {x} Y: {y} Z: {z} [Teleport]"
+
+messages:
+  player-only: "This command can only be used by players."
+  no-permission: "You don't have permission to use this command."
+  teleport-button: "[Teleport]"
+  teleport-hover: "Click to teleport to {player}'s coordinates"
+  teleport-permission-hint: "Requires /tp permission"

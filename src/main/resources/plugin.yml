@@ -1,0 +1,20 @@
+main: ${PACKAGE}.${NAME}
+name: ${NAME}
+version: "${VERSION}"
+api-version: "1.21.11"
+author: AUTHOR
+description: DESCRIPTION
+commands:
+  coords:
+    description: Share your current coordinates in chat
+    usage: "/coords"
+    aliases: [coord, coordinates, coordenadas]
+permissions:
+  chatcoords.use:
+    description: Allows players to use the /coords command
+    default: true
+  chatcoords.*:
+    description: Grants all other permissions
+    default: false
+    children:
+      chatcoords.use: true
